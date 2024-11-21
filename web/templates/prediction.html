@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주가 예측 결과</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #ffffff;
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 1400px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .prediction-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .back-btn {
+            background-color: #3182ce;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background-color: #2c5282;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-title {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            color: #1a365d;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .direction-up { color: #38a169; }
+        .direction-down { color: #e53e3e; }
+
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #1a365d;
+            font-weight: 600;
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+            transition: background-color 0.2s ease;
+        }
+
+        h1 {
+            color: #1a365d;
+        }
+
+        @media screen and (max-width: 768px) {
+            .prediction-card {
+                padding: 16px;
+            }
+
+            .metric-value {
+                font-size: 1.25rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="py-4">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-bold text-white">{{ stock_name }} 주가 예측</h1>
+            <a href="/" class="back-btn">목록으로 돌아가기</a>
+        </div>
+
+        <div class="grid grid-cols-12 gap-4">
+            <!-- 왼쪽: 지표 + 테이블 -->
+            <div class="col-span-12 lg:col-span-4 space-y-4">
+                <!-- 지표 카드들 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="prediction-card">
+                        <h3 class="metric-title">현재 가격</h3>
+                        <p class="metric-value">{{ current_price }}원</p>
+                    </div>
+                    <div class="prediction-card">
+                        <h3 class="metric-title">예측 방향</h3>
+                        <p class="metric-value {% if direction == '상승' %}direction-up{% else %}direction-down{% endif %}">
+                            {{ direction }}
+                        </p>
+                    </div>
+                    <div class="prediction-card">
+                        <h3 class="metric-title">예측 정확도</h3>
+                        <p class="metric-value">{{ accuracy }}%</p>
+                    </div>
+                    <div class="prediction-card">
+                        <h3 class="metric-title">RMSE</h3>
+                        <p class="metric-value">{{ rmse }}원</p>
+                    </div>
+                </div>
+
+                <!-- 테이블 -->
+                <div class="prediction-card">
+                    <h2 class="text-lg font-bold text-gray-800 mb-3">최근 예측 결과</h2>
+                    <div class="table-container">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-sm text-gray-600">날짜</th>
+                                    <th class="px-3 py-2 text-right text-sm text-gray-600">실제가</th>
+                                    <th class="px-3 py-2 text-right text-sm text-gray-600">예측가</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pred in recent_predictions %}
+                                <tr class="border-t hover:bg-gray-50">
+                                    <td class="px-3 py-2 text-left text-sm">{{ pred.date }}</td>
+                                    <td class="px-3 py-2 text-right text-sm">{{ pred.actual }}원</td>
+                                    <td class="px-3 py-2 text-right text-sm">{{ pred.predicted }}원</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오른쪽: 차트 -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="prediction-card h-full">
+                    <h2 class="text-lg font-bold text-gray-800 mb-3">가격 추이 및 예측</h2>
+                    <div class="chart-container">
+                        <canvas id="predictionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center text-white mt-4 text-sm">* 주가 예측은 참고용이며, 투자의 책임은 투자자 본인에게 있습니다.</p>
+    </div>
+
+    <script>
+        const chartData = {{ chart_data | tojson }};
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [...chartData.dates, ...Array(7).fill(0).map((_, i) => `D+${i+1}`)],
+                datasets: [{
+                    label: '실제 가격',
+                    data: [...chartData.actual_prices, ...Array(7).fill(null)],
+                    borderColor: '#28a745',
+                    tension: 0.1,
+                    pointRadius: 2
+                }, {
+                    label: '예측 가격',
+                    data: [...chartData.predicted_prices, ...chartData.future_predictions],
+                    borderColor: '#007bff',
+                    tension: 0.1,
+                    pointRadius: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('ko-KR').format(context.parsed.y) + '원';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('ko-KR').format(value) + '원';
+                            },
+                            font: { size: 10 }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -9,7 +9,6 @@ import logging
 import json
 from pathlib import Path
 from src.analyzer.stock_ranker import StockRanker
-from src.analyzer.technical_analyzer import StockAnalyzer
 from src.analyzer.src.predictor.predict import StockPredictor
 import sys
 import os
@@ -216,4 +215,3 @@ async def predict_stock(stock_code: str):
 if __name__ == "__main__":
     logger.info("서버 시작")
     uvicorn.run("main:app", host="127.0.0.1", port=8002, reload=True)
-

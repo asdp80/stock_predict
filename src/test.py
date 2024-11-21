@@ -17,13 +17,3 @@ plt.plot(sma, label="20-day SMA")
 plt.legend()
 plt.show()
 
-# # 이동평균선(SMA) 및 RSI 지표 계산
-# data['SMA20'] = ta.SMA(data['Close'].to_numpy().flatten(), timeperiod=20)  # 20일 단순 이동평균
-# data['RSI'] = ta.RSI(data['Close'].to_numpy().flatten(), timeperiod=14)    # 14일 RSI
-#
-# # 볼린저 밴드 계산
-# data['Upper'], data['Middle'], data['Lower'] = ta.BBANDS(
-#     data['Close'].to_numpy().flatten(), timeperiod=20, nbdevup=2, nbdevdn=2, matype=0
-# )
-#
-# print(data[['Close', 'SMA20', 'RSI', 'Upper', 'Middle', 'Lower']].tail())

@@ -6,33 +6,28 @@ class StockRanker:
         pass
 
     def calculate_score(self, series, is_higher_better=True):
-        # Convert the series to numeric, coercing errors to NaN
         series = pd.to_numeric(series, errors='coerce')
 
-        # If NaN values are present, they will be ignored in the calculations
         if is_higher_better:
             return ((series - series.min()) / (series.max() - series.min()) * 100)
         else:
             return ((series.max() - series) / (series.max() - series.min()) * 100)
 
     def calculate_per_and_pbr(self, stock_info):
-        # Check if PER and PBR are missing and compute if needed
         per = stock_info['투자지표']['PER']
         pbr = stock_info['투자지표']['PBR']
 
-        # Calculate PER if missing using EPS (EPS / Current Price)
         if per is None:
             if stock_info['투자지표']['EPS'] is not None and stock_info['가격정보']['현재가'] is not None:
                 per = stock_info['가격정보']['현재가'] / stock_info['투자지표']['EPS']
             else:
-                per = 0  # Default or set a default value like 0 or a placeholder
+                per = 0
 
-        # Calculate PBR if missing using BPS (BPS / Current Price)
         if pbr is None:
             if stock_info['투자지표']['BPS'] is not None and stock_info['가격정보']['현재가'] is not None:
                 pbr = stock_info['가격정보']['현재가'] / stock_info['투자지표']['BPS']
             else:
-                pbr = 0  # Default or set a default value like 0 or a placeholder
+                pbr = 0
 
         return per, pbr
 
@@ -104,4 +99,3 @@ class StockRanker:
                          'PER', 'PBR', 'DIV', 'ROE', 'ROA', '종합점수']
 
         return result[final_columns]
-

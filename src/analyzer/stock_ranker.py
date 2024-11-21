@@ -1,119 +1,107 @@
-# src/analyzer/stock_ranker.py
+import pandas as pd
+import numpy as np
 
 class StockRanker:
-    """
-    주식들의 시험 점수를 매기는 선생님이에요!
-    """
-
     def __init__(self):
-        self.scores = {}
+        pass
 
-    def calculate_technical_score(self, indicators):
-        score = 0
-        try:
-            technical_indicators = indicators.get('technical_indicators', {})
+    def calculate_score(self, series, is_higher_better=True):
+        # Convert the series to numeric, coercing errors to NaN
+        series = pd.to_numeric(series, errors='coerce')
 
-            # RSI 점수 (30점 만점)
-            rsi = technical_indicators.get('RSI', None)
-            if rsi is not None:
-                if 40 <= rsi <= 60:
-                    score += 30
-                elif (30 <= rsi < 40) or (60 < rsi <= 70):
-                    score += 15
+        # If NaN values are present, they will be ignored in the calculations
+        if is_higher_better:
+            return ((series - series.min()) / (series.max() - series.min()) * 100)
+        else:
+            return ((series.max() - series) / (series.max() - series.min()) * 100)
 
-            # MACD 점수 (40점 만점)
-            macd = technical_indicators.get('MACD', None)
-            macd_signal = technical_indicators.get('MACD_Signal', None)
-            if macd is not None and macd_signal is not None:
-                if macd > macd_signal:
-                    score += 40
+    def calculate_per_and_pbr(self, stock_info):
+        # Check if PER and PBR are missing and compute if needed
+        per = stock_info['투자지표']['PER']
+        pbr = stock_info['투자지표']['PBR']
 
-            # 이동평균선 점수 (30점 만점)
-            ma5 = technical_indicators.get('MA5', None)
-            ma20 = technical_indicators.get('MA20', None)
-            ma60 = technical_indicators.get('MA60', None)
-            if all(x is not None for x in [ma5, ma20, ma60]):
-                if ma5 > ma20 and ma20 > ma60:
-                    score += 30
-                elif ma5 > ma20:
-                    score += 15
+        # Calculate PER if missing using EPS (EPS / Current Price)
+        if per is None:
+            if stock_info['투자지표']['EPS'] is not None and stock_info['가격정보']['현재가'] is not None:
+                per = stock_info['가격정보']['현재가'] / stock_info['투자지표']['EPS']
+            else:
+                per = 0  # Default or set a default value like 0 or a placeholder
 
-        except Exception as e:
-            print(f"지표 계산 중 오류 발생: {e}")
-            return 0
+        # Calculate PBR if missing using BPS (BPS / Current Price)
+        if pbr is None:
+            if stock_info['투자지표']['BPS'] is not None and stock_info['가격정보']['현재가'] is not None:
+                pbr = stock_info['가격정보']['현재가'] / stock_info['투자지표']['BPS']
+            else:
+                pbr = 0  # Default or set a default value like 0 or a placeholder
 
-        return score
+        return per, pbr
 
-    def calculate_financial_score(self, financial_health):
-        score = 0
-        try:
-            # PER 점수 (30점 만점)
-            per_status = financial_health.get('PER_STATUS', '')
-            if per_status == "저평가 (싸요!)":
-                score += 30
-            elif per_status == "적정가치":
-                score += 15
+    def calculate_ranking(self, data):
+        # 데이터를 DataFrame으로 변환하기 위한 리스트
+        stocks_list = []
 
-            # PBR 점수 (30점 만점)
-            pbr_status = financial_health.get('PBR_STATUS', '')
-            if pbr_status == "자산가치보다 저평가":
-                score += 30
-            elif pbr_status == "적정가치":
-                score += 15
+        for code, stock_info in data.items():
+            per, pbr = self.calculate_per_and_pbr(stock_info)
+            stock_dict = {
 
-            # ROE 점수 (40점 만점)
-            roe_status = financial_health.get('ROE_STATUS', '')
-            if roe_status == "수익성이 매우 좋아요!":
-                score += 40
-            elif roe_status == "수익성이 괜찮아요":
-                score += 20
+                '종목코드': code,
+                '종목명': stock_info['기본정보']['종목명'],
+                '섹터': stock_info['기본정보']['섹터'],
+                '시가총액': stock_info['가격정보']['시가총액'],
+                'PER': per,
+                'PBR': pbr,
+                'DIV': stock_info['투자지표']['DIV'],
+                'ROE': stock_info['투자지표']['ROE'],
+                'ROA': stock_info['투자지표']['ROA']
+            }
+            stocks_list.append(stock_dict)
 
-        except Exception as e:
-            print(f"재무 점수 계산 중 오류 발생: {e}")
-            return 0
+        # DataFrame 생성
+        df = pd.DataFrame(stocks_list)
 
-        return score
+        # 'N/A' 값을 NaN으로 변환
+        df = df.replace('N/A', np.nan)
 
-    def rank_stocks(self, stocks_data):
-        ranked_stocks = []
+        # 지표별 점수 계산 (0-100점 스케일)
+        df['PER_점수'] = self.calculate_score(df['PER'], False)  # Lower PER is better
+        df['PBR_점수'] = self.calculate_score(df['PBR'], False)  # Lower PBR is better
+        df['DIV_점수'] = self.calculate_score(df['DIV'], True)  # Higher DIV is better
+        df['ROE_점수'] = self.calculate_score(df['ROE'], True)  # Higher ROE is better
+        df['ROA_점수'] = self.calculate_score(df['ROA'], True)  # Higher ROA is better
 
-        for stock in stocks_data:
-            try:
-                if 'indicators' not in stock:
-                    print(f"Warning: Stock data missing 'indicators' for {stock['code']}")
-                    continue
+        # 종합 점수 계산 (가중치 적용)
+        weights = {
+            'PER_점수': 0.25,
+            'PBR_점수': 0.20,
+            'DIV_점수': 0.15,
+            'ROE_점수': 0.25,
+            'ROA_점수': 0.15
+        }
 
-                technical_score = self.calculate_technical_score(stock['indicators'])
-                financial_score = self.calculate_financial_score(stock.get('financial_health', {}))
-                total_score = technical_score + financial_score
+        df['종합점수'] = sum(df[score] * weight for score, weight in weights.items())
 
-                # 템플릿에 맞는 구조로 데이터 구성
-                ranked_stock = {
-                    'code': stock['code'],
-                    'name': stock.get('company_info', {}).get('name', stock['code']),
-                    'current_price': stock.get('current_price', 0),
-                    'total_score': total_score,
-                    'technical_score': technical_score,
-                    'financial_score': financial_score,
-                    'indicators': stock['indicators'],  # 원본 지표 데이터 유지
-                    'financial_health': stock.get('financial_health', {}),  # 재무 데이터 유지
-                    'rsi': stock['indicators'].get('technical_indicators', {}).get('RSI', 0),
-                    'per_status': stock.get('financial_health', {}).get('PER_STATUS', 'N/A'),
-                    'pbr_status': stock.get('financial_health', {}).get('PBR_STATUS', 'N/A'),
-                    'roe_status': stock.get('financial_health', {}).get('ROE_STATUS', 'N/A')
-                }
-                ranked_stocks.append(ranked_stock)
+        # 순위 계산
+        df['순위'] = df['종합점수'].rank(ascending=False, method='min')
 
-            except Exception as e:
-                print(f"Error processing stock {stock.get('code', 'unknown')}: {e}")
-                continue
+        # NaN 또는 무한 값을 0 또는 다른 적절한 값으로 채우기
+        df['순위'] = df['순위'].fillna(0).replace([np.inf, -np.inf], 0)
 
-        ranked_stocks.sort(key=lambda x: x['total_score'], reverse=True)
+        # 소수점 제거: 순위를 정수로 변환
+        df['순위'] = df['순위'].astype(int)
+        # 결과 정렬 및 포맷팅
 
-        # 순위 추가
-        for i, stock in enumerate(ranked_stocks, 1):
-            stock['rank'] = i
+        result = df.sort_values('종합점수', ascending=False)
 
-        return ranked_stocks
+        # 점수들을 소수점 2자리까지 반올림
+        score_columns = ['PER_점수', 'PBR_점수', 'DIV_점수', 'ROE_점수', 'ROA_점수', '종합점수']
+        result[score_columns] = result[score_columns].round(2)
 
+        # 시가총액을 조원 단위로 변환
+        result['시가총액(조원)'] = (result['시가총액'] / 1e12).round(2)
+
+        # 최종 출력을 위한 컬럼 선택 및 정렬
+        final_columns = ['순위', '종목코드', '종목명', '섹터', '시가총액(조원)',
+                         'PER', 'PBR', 'DIV', 'ROE', 'ROA', '종합점수']
+
+        return result[final_columns]
 

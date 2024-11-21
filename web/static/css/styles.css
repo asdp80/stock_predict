@@ -1,0 +1,277 @@
+
+/*!* Main background and container *!*/
+/*body {*/
+/*    background-color: #ffffff;*/
+/*    color: #2d3748;*/
+/*}*/
+
+/*.container {*/
+/*    max-width: 1400px;*/
+/*    margin: 0 auto;*/
+/*    padding: 2rem;*/
+/*    background-color: #ffffff;*/
+/*}*/
+
+/*!* Header styling *!*/
+/*header {*/
+/*    text-align: center;*/
+/*    margin-bottom: 3rem;*/
+/*    background-color: #f8fafc;*/
+/*    padding: 2rem;*/
+/*    border-radius: 8px;*/
+/*    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);*/
+/*}*/
+
+/*header h1 {*/
+/*    font-size: 2.5rem;*/
+/*    color: #1a365d;*/
+/*    font-weight: 700;*/
+/*    margin-bottom: 1rem;*/
+/*}*/
+
+/*.debug-info {*/
+/*    color: #64748b;*/
+/*    font-size: 0.9rem;*/
+/*}*/
+
+/*!* Table styling *!*/
+/*table {*/
+/*    width: 100%;*/
+/*    background: white;*/
+/*    border-radius: 8px;*/
+/*    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);*/
+/*    border: 1px solid #e2e8f0;*/
+/*}*/
+
+/*th {*/
+/*    background-color: #f8fafc;*/
+/*    color: #1a365d;*/
+/*    padding: 1rem;*/
+/*    font-weight: 600;*/
+/*    text-align: center;*/
+/*    white-space: nowrap;*/
+/*    border-bottom: 2px solid #e2e8f0;*/
+/*}*/
+
+/*td {*/
+/*    padding: 0.875rem 1rem;*/
+/*    color: #4a5568;*/
+/*    border-bottom: 1px solid #e2e8f0;*/
+/*    text-align: center;*/
+/*}*/
+
+/*tr:hover {*/
+/*    background-color: #f8fafc;*/
+/*    transition: background-color 0.2s ease;*/
+/*}*/
+
+/*!* Prediction button styling *!*/
+/*.predict-btn {*/
+/*    background-color: #3182ce;*/
+/*    color: white;*/
+/*    padding: 0.5rem 1rem;*/
+/*    border-radius: 6px;*/
+/*    font-size: 0.875rem;*/
+/*    transition: all 0.2s ease;*/
+/*    border: none;*/
+/*}*/
+
+/*.predict-btn:hover {*/
+/*    background-color: #2c5282;*/
+/*    transform: translateY(-1px);*/
+/*    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
+/*}*/
+
+/*!* Responsive design *!*/
+/*@media screen and (max-width: 768px) {*/
+/*    .container {*/
+/*        padding: 1rem;*/
+/*    }*/
+
+/*    table {*/
+/*        font-size: 0.875rem;*/
+/*    }*/
+
+/*    th, td {*/
+/*        padding: 0.75rem 0.5rem;*/
+/*    }*/
+
+/*    header h1 {*/
+/*        font-size: 2rem;*/
+/*    }*/
+/*}*/
+
+/*!* Footer styling *!*/
+/*footer {*/
+/*    margin-top: 3rem;*/
+/*    padding: 1.5rem;*/
+/*    background-color: #f8fafc;*/
+/*    color: #1a365d;*/
+/*    text-align: center;*/
+/*    border-top: 1px solid #e2e8f0;*/
+/*}*/
+
+/*!* Table wrapper for horizontal scrolling on mobile *!*/
+/*.table-wrapper {*/
+/*    overflow-x: auto;*/
+/*    border-radius: 8px;*/
+/*    background-color: white;*/
+/*    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);*/
+/*}*/
+
+/*!* Value highlighting *!*/
+/*.positive-value {*/
+/*    color: #38a169;*/
+/*}*/
+
+/*.negative-value {*/
+/*    color: #e53e3e;*/
+/*}*/
+
+/* Global Variables */
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary: #64748b;
+  --background: #0f172a;
+  --surface: #1e293b;
+  --surface-light: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --success: #22c55e;
+  --error: #ef4444;
+  --warning: #f59e0b;
+}
+
+/* Base Styles */
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Header Styles */
+header h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.debug-info {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Table Styles */
+.table-container {
+  background-color: var(--surface);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+th {
+  background-color: var(--surface-light);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 2px solid var(--primary);
+}
+
+td {
+  padding: 1rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--surface-light);
+}
+
+tr:hover {
+  background-color: rgba(37, 99, 235, 0.1);
+  transition: background-color 0.2s ease;
+}
+
+/* Button Styles */
+.button, .predict-btn, .back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary);
+  color: var(--text-primary);
+  border-radius: 0.375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.button:hover, .predict-btn:hover, .back-btn:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Prediction Card Styles */
+.prediction-card {
+  background-color: var(--surface);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.metric-title {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Chart Container */
+.chart-container {
+  width: 100%;
+  height: 400px;
+  background-color: var(--surface);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  table {
+    font-size: 0.875rem;
+  }
+
+  th, td {
+    padding: 0.75rem;
+  }
+
+  .chart-container {
+    height: 300px;
+  }
+}
+
+/* Footer Styles */
+footer {
+  background-color: var(--surface);
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}

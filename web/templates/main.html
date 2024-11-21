@@ -1,0 +1,190 @@
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주식 랭킹</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #2c5282;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .debug-info {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #1a365d;
+            padding: 1rem;
+            font-weight: 600;
+            text-align: center;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 0.875rem 1rem;
+            color: #4a5568;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+            background-color: white;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+            transition: background-color 0.2s ease;
+        }
+
+        .predict-btn {
+            background-color: #3182ce;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .predict-btn:hover {
+            background-color: #2c5282;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .overflow-x-auto {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            background-color: #f8fafc;
+            color: #1a365d;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            table {
+                font-size: 0.875rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .predict-btn {
+                padding: 0.375rem 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mx-auto p-6">
+        <!-- 헤더 -->
+        <header class="mb-8 text-center">
+            <h1>주식 랭킹</h1>
+            <div class="debug-info mt-2">
+                <p>{{ debug_info.collected_stocks }} 종목 데이터</p>
+            </div>
+        </header>
+
+        <!-- 주식 테이블 -->
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr>
+                        <th>순위</th>
+                        <th>종목명</th>
+                        <th>섹터</th>
+                        <th>시가총액(조원)</th>
+                        <th>PER</th>
+                        <th>PBR</th>
+                        <th>DIV</th>
+                        <th>ROE</th>
+                        <th>ROA</th>
+                        <th>종합점수</th>
+                        <th>예측</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr>
+                        <td>{{ stock['순위'] }}</td>
+                        <td>{{ stock['종목명'] }}</td>
+                        <td>{{ stock['섹터'] }}</td>
+                        <td>{{ stock['시가총액(조원)'] }}</td>
+                        <td>{{ stock['PER'] }}</td>
+                        <td>{{ stock['PBR'] }}</td>
+                        <td>{{ stock['DIV'] }}</td>
+                        <td>{{ stock['ROE'] }}</td>
+                        <td>{{ stock['ROA'] }}</td>
+                        <td>{{ stock['종합점수'] }}</td>
+                        <td>
+                            <a href="/predict/{{ stock['종목코드'] }}" class="predict-btn">
+                                예측하기
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <p class="text-center">&copy; 2024 주식 분석 사이트. All rights reserved.</p>
+    </footer>
+</body>
+</html>
